@@ -180,7 +180,6 @@
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
-                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="blog-page">Blog</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
             </nav>
 
@@ -204,7 +203,6 @@
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
-            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="blog-page">Blog</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
             <button id="mobile-try-now-button" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-bold mt-4">
                 Try Now
@@ -215,7 +213,7 @@
     <!-- Main Content Area -->
     <main id="main-content">
         <!-- Home / Landing Page Content (Initially visible) -->
-        <section id="home-page" class="page-content text-center hidden-page">
+        <section id="home-page" class="page-content text-center">
             <!-- Hero Section -->
             <div class="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl mb-12 shadow-inner">
                 <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
@@ -443,7 +441,7 @@
                         - Limited time offer -
                     </p>
                 </div>
-            </section>
+            </div>
 
 
             <!-- Get in Touch / Contact Form Section -->
@@ -585,41 +583,57 @@
             </div>
         </section>
 
-        <!-- Login Page Content (Hidden by default) -->
-        <section id="login-page" class="page-content hidden-page flex items-center justify-center min-h-screen" style="background: linear-gradient(135deg, #b0c6ff 0%, #e0c3fc 100%);">
-            <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl mx-auto">
-                <h2 class="text-2xl font-bold text-center mb-2">Welcome Back!</h2>
-                <p class="text-gray-500 text-center mb-8">We missed you! Please enter your details.</p>
+        <!-- Register Page Content (Hidden by default) -->
+        <section id="register-page" class="page-content hidden-page">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Register</h2>
+            <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
                 <form>
-                    <div class="mb-5">
-                        <label for="login-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400" placeholder="Enter your Email">
+                    <div class="mb-6">
+                        <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                        <div class="relative">
+                            <input type="text" id="username" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="username">
+                            <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="mb-4 relative">
-                        <label for="login-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                        <input type="password" id="login-password" class="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400 pr-10" placeholder="Enter Password">
-                        <span class="absolute right-3 top-9 transform -translate-y-1/2 text-gray-400 cursor-pointer" id="toggle-login-password"><i class="fas fa-eye-slash"></i></span>
+                    <div class="mb-6">
+                        <label for="register-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                        <div class="relative">
+                            <input type="email" id="register-email" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="email">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="flex items-center justify-between mb-6">
-                        <label class="flex items-center text-gray-500 text-sm">
-                            <input type="checkbox" class="mr-2 rounded border-gray-300 focus:ring-blue-400">
-                            Remember me
-                        </label>
-                        <a href="#" class="text-blue-500 text-sm hover:underline">Forgot password?</a>
+                    <div class="mb-6">
+                        <label for="register-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="register-password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="password">
+                            <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-eye-slash absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"></i>
+                        </div>
                     </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-md font-semibold shadow-md hover:bg-blue-600 transition mb-4">Sign in</button>
-                    <button type="button" class="w-full flex items-center justify-center border border-gray-200 py-3 rounded-md font-semibold shadow-sm hover:bg-gray-50 transition mb-2">
-                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5 mr-2"> Sign in with google
+                    <div class="mb-8">
+                        <label for="confirm-password" class="block text-gray-700 text-sm font-medium mb-2">Confirm</label>
+                        <div class="relative">
+                            <input type="password" id="confirm-password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="******">
+                            <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-eye-slash absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-bold">
+                        Create account
                     </button>
                 </form>
-                <p class="text-center text-gray-500 text-sm mt-6">Don't have an account? <a href="#" class="text-blue-500 font-semibold hover:underline" id="login-signup-link">Sign up.</a></p>
+                <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-700 p-4 mt-8 rounded-md text-left" role="alert">
+                    <div class="flex items-center">
+                        <div class="py-1"><i class="fas fa-info-circle text-xl mr-3"></i></div>
+                        <div>
+                            Free trial credits will be activated after you successfully sync a website.
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-8 text-center text-gray-600">
+                    Already have an account? <a href="#" class="text-blue-600 hover:underline font-semibold" data-target-page="login-page">Log In</a>
+                </p>
             </div>
-        </section>
-
-        <!-- Blog Page Content (Hidden by default) -->
-        <section id="blog-page" class="page-content hidden-page text-center p-8">
-            <h2 class="text-3xl font-bold mb-4">Blog</h2>
-            <p class="text-gray-600">Stay tuned for our latest updates.</p>
         </section>
     </main>
 
@@ -653,11 +667,9 @@
             const dashboardPage = document.getElementById('dashboard-page');
             const examplesPage = document.getElementById('examples-page');
             const settingsPage = document.getElementById('settings-page');
-            const registerPage = document.getElementById('register-page');
-            const loginPage = document.getElementById('login-page');
-            const blogPage = document.getElementById('blog-page');
+            const registerPage = document.getElementById('register-page'); 
 
-            const allPages = [homePage, dashboardPage, examplesPage, settingsPage, registerPage, loginPage, blogPage].filter(page => page !== null); // Filter out nulls
+            const allPages = [homePage, dashboardPage, examplesPage, settingsPage, registerPage].filter(page => page !== null); // Filter out nulls
 
 
             // --- Page Switching Logic ---
@@ -689,8 +701,9 @@
                             pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
                     } else if (targetPageId === 'login') {
-                        showPage('login-page');
-                        console.log("Login clicked. Showing Login page.");
+                        // For 'Login', we'll just show the register page for now, as login isn't built
+                        showPage('register-page'); // Or create a dedicated login page later
+                        console.log("Login clicked. Redirecting to Register page for now.");
                     } else if (targetPageId === 'use-cases' || targetPageId === 'resources') {
                         // For these, we'll assume they are on the home page and might scroll or show a specific section
                         showPage('home-page'); // Ensure home page is visible
@@ -714,7 +727,7 @@
 
             // Header "Try Now" buttons click handler - now leads to Register Page
             const handleTryNowClick = () => {
-                showPage('login-page'); // Navigate to the new register page
+                showPage('register-page'); // Navigate to the new register page
             };
             if (headerTryNowButton) headerTryNowButton.addEventListener('click', handleTryNowClick); // Added null check
             if (mobileTryNowButton) mobileTryNowButton.addEventListener('click', handleTryNowClick); // Added null check
@@ -866,25 +879,6 @@
                     question.classList.toggle('active');
                 });
             });
-
-            // Login page password show/hide logic
-            const loginPasswordInput = document.getElementById('login-password');
-            const toggleLoginPassword = document.getElementById('toggle-login-password');
-            if (loginPasswordInput && toggleLoginPassword) {
-                toggleLoginPassword.addEventListener('click', () => {
-                    const isPassword = loginPasswordInput.type === 'password';
-                    loginPasswordInput.type = isPassword ? 'text' : 'password';
-                    toggleLoginPassword.innerHTML = isPassword ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
-                });
-            }
-            // Login page sign up link logic
-            const loginSignupLink = document.getElementById('login-signup-link');
-            if (loginSignupLink) {
-                loginSignupLink.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showPage('register-page');
-                });
-            }
         });
     </script>
 </body>
