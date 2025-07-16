@@ -180,6 +180,7 @@
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
+                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="blog-page">Blog</a>
                 <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
             </nav>
 
@@ -203,6 +204,7 @@
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
+            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="blog-page">Blog</a>
             <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
             <button id="mobile-try-now-button" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-bold mt-4">
                 Try Now
@@ -666,6 +668,12 @@
                 <p class="text-center text-gray-500 text-sm mt-6">Don't have an account? <a href="#" class="text-blue-500 font-semibold hover:underline" id="login-signup-link">Sign up.</a></p>
             </div>
         </section>
+
+        <!-- Blog Page Content (Hidden by default) -->
+        <section id="blog-page" class="page-content hidden-page text-center p-8">
+            <h2 class="text-3xl font-bold mb-4">Blog</h2>
+            <p class="text-gray-600">Stay tuned for our latest updates.</p>
+        </section>
     </main>
 
     <!-- No Data Message Modal/Overlay -->
@@ -698,10 +706,11 @@
             const dashboardPage = document.getElementById('dashboard-page');
             const examplesPage = document.getElementById('examples-page');
             const settingsPage = document.getElementById('settings-page');
-            const registerPage = document.getElementById('register-page'); 
+            const registerPage = document.getElementById('register-page');
             const loginPage = document.getElementById('login-page');
+            const blogPage = document.getElementById('blog-page');
 
-            const allPages = [homePage, dashboardPage, examplesPage, settingsPage, registerPage, loginPage].filter(page => page !== null); // Filter out nulls
+            const allPages = [homePage, dashboardPage, examplesPage, settingsPage, registerPage, loginPage, blogPage].filter(page => page !== null); // Filter out nulls
 
 
             // --- Page Switching Logic ---
