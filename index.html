@@ -1,13 +1,885 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashify</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: #ffffff; /* Full white background */
+        }
+        /* Custom styling for the "no data" message */
+        .no-data-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* shadow-xl */
+            text-align: center;
+            z-index: 1000;
+            max-width: 90%;
+            width: 400px;
+            display: none; /* Hidden by default */
+            border: 1px solid #e2e8f0; /* border-gray-200 */
+        }
+        .no-data-message.show {
+            display: block;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none; /* Hidden by default */
+        }
+        .overlay.show {
+            display: block;
+        }
+        /* Custom styling for the circular logo */
+        .circular-logo {
+            width: 40px;
+            height: 40px;
+            background-color: #2563eb; /* Blue color from image */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        /* Page specific styles */
+        .page-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .hidden-page {
+            display: none;
+        }
+
+        /* Typing animation styles */
+        .cursor {
+            display: inline-block;
+            animation: blink 0.7s infinite;
+            font-weight: 300; /* Make cursor slightly thinner */
+            margin-left: 2px; /* Small gap between text and cursor */
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        /* Abstract shapes for sections */
+        .abstract-shape-1 {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.7), rgba(139, 92, 246, 0.7)); /* Purple gradient */
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.6;
+            top: 10%;
+            left: 5%;
+            z-index: 0;
+        }
+        .abstract-shape-2 {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.7), rgba(129, 140, 248, 0.7)); /* Indigo/Blue gradient */
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.6;
+            bottom: 15%;
+            right: 8%;
+            z-index: 0;
+        }
+
+        /* Ensure content is above abstract shapes */
+        .z-10-content > * {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* FAQ specific styles */
+        .faq-item {
+            background-color: #f8f8f8;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #333;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .faq-question:hover {
+            background-color: #f0f0f0;
+        }
+        .faq-answer {
+            padding: 1rem 1.5rem 1.25rem;
+            color: #555;
+            text-align: left;
+            display: none; /* Hidden by default */
+        }
+        .faq-answer.show {
+            display: block;
+        }
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        .faq-question.active .faq-icon {
+            transform: rotate(45deg); /* Rotate to form an 'X' or '-' */
+        }
+    </style>
 </head>
 <body>
-  <h1>Hello, Dashify!</h1>
-  <script src="script.js"></script>
+
+    <!-- Header Section -->
+    <header class="bg-white p-3 shadow-md rounded-xl mx-auto mt-4 max-w-7xl">
+        <div class="container mx-auto flex justify-between items-center space-x-4">
+            <!-- Left: Logo -->
+            <div class="flex items-center space-x-2">
+                <a href="#" class="circular-logo hover:opacity-80 transition duration-300 ease-in-out" id="header-logo-link">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                    </svg>
+                </a>
+                <span class="text-xl font-semibold text-gray-800">SalesDash</span>
+            </div>
+
+            <!-- Middle: Desktop Nav Links -->
+            <nav class="hidden md:flex space-x-6 items-center text-gray-700 font-medium">
+                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
+                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
+                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
+                <a href="#" class="header-nav-link hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
+            </nav>
+
+            <!-- Right: Try Now Button (Desktop) -->
+            <div class="hidden md:flex items-center">
+                <button id="header-try-now-button" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-bold">
+                    Try Now
+                </button>
+            </div>
+
+            <!-- Mobile Menu Button (Hamburger Icon) -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none p-2 rounded-md hover:bg-gray-100 transition duration-300 ease-in-out" aria-label="Toggle mobile menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Menu Items (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden flex-col space-y-2 mt-4 p-4 bg-gray-50 rounded-lg shadow-inner">
+            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="use-cases">Use Cases</a>
+            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="resources">Resources</a>
+            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="pricing-section">Pricing</a>
+            <a href="#" class="header-nav-link block text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-300 ease-in-out px-3 py-2 rounded-md" data-target-page="login">Login</a>
+            <button id="mobile-try-now-button" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-bold mt-4">
+                Try Now
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="main-content">
+        <!-- Home / Landing Page Content (Initially visible) -->
+        <section id="home-page" class="page-content text-center">
+            <!-- Hero Section -->
+            <div class="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl mb-12 shadow-inner">
+                <h1 class="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
+                    <span id="static-unlock">Unlock</span> <span class="text-blue-700"><span id="typed-text"></span></span> <span id="static-instantly">Instantly</span>.<span class="cursor">|</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-700 mb-10 max-w-4xl mx-auto">
+                    Transform your raw CSV or Excel sales data into a beautiful, interactive dashboard in seconds. No coding, no complex setup, just pure insights.
+                </p>
+                <button id="hero-upload-button" class="bg-blue-600 text-white px-10 py-5 rounded-xl shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75 text-xl font-bold">
+                    Get Started - Upload Your Data
+                </button>
+            </div>
+
+            <!-- File Upload Area (Moved below Hero) -->
+            <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-2xl p-12 text-center text-gray-500 hover:border-blue-500 hover:text-blue-600 transition duration-300 ease-in-out cursor-pointer max-w-2xl mx-auto bg-gray-50 shadow-inner">
+                <i class="fas fa-cloud-upload-alt text-6xl mb-6 text-blue-500"></i>
+                <p class="text-2xl font-semibold mb-4">Drag & Drop your CSV/XLSX file here</p>
+                <p class="mb-6 text-gray-600">or</p>
+                <button id="browse-file-button" class="bg-blue-600 text-white px-8 py-4 rounded-xl shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75 text-lg font-bold">
+                    Browse Files
+                </button>
+                <input type="file" id="file-upload-input" class="hidden" accept=".csv, .xlsx">
+                <p class="text-sm text-gray-500 mt-6">Supports CSV & XLSX formats. Maximum file size: 10MB.</p>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="mt-20">
+                <h2 class="text-3xl font-bold text-gray-900 mb-10">Why You'll Love SalesDash</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-blue-500 text-white mb-4">
+                            <i class="fas fa-tachometer-alt text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Zero Learning Curve</h3>
+                        <p class="text-gray-600 text-center">Get started immediately. No complex tutorials or steep learning curves.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-purple-500 text-white mb-4">
+                            <i class="fas fa-rocket text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Dashboard in Seconds</h3>
+                        <p class="text-gray-600 text-center">Upload your data and see a beautiful, interactive dashboard instantly.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-green-500 text-white mb-4">
+                            <i class="fas fa-file-excel text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No More Excel Hassle</h3>
+                        <p class="text-gray-600 text-center">Skip manual charting and pivot tables. We do the heavy lifting for you.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action / Sales Intelligence Excellence Section -->
+            <div class="relative py-20 mt-20 bg-gradient-to-br from-purple-800 to-indigo-900 text-white rounded-xl shadow-2xl overflow-hidden">
+                <!-- Abstract Shapes -->
+                <div class="abstract-shape-1 hidden md:block"></div>
+                <div class="abstract-shape-2 hidden md:block"></div>
+
+                <div class="relative z-10-content flex flex-col items-center px-4">
+                    <p class="text-sm font-medium uppercase tracking-wider text-purple-300 mb-3">SALES INTELLIGENCE POWERED</p>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight max-w-4xl">
+                        Gain Deeper Insights for Sales Growth
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-3xl">
+                        Leverage automated analysis to understand your sales performance, identify trends, and make data-driven decisions that propel your business forward.
+                    </p>
+                    <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+                        <button class="bg-white text-purple-800 px-8 py-4 rounded-xl shadow-lg hover:bg-gray-200 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 text-lg font-bold">
+                            View Live Demo
+                        </button>
+                        <button class="border border-white text-white px-8 py-4 rounded-xl shadow-lg hover:bg-white hover:text-purple-800 transition duration-300 ease-in-out focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 text-lg font-bold">
+                            Upload Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How it Works Section -->
+            <div class="mt-20">
+                <h2 class="text-3xl font-bold text-gray-900 mb-10">How It Works: Simple Steps to Insight</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-4xl mx-auto">
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-blue-500 text-white mb-4">1</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Upload Your Data</h3>
+                        <p class="text-gray-600 text-center">Drag & drop your sales CSV/Excel file directly into the app.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-purple-500 text-white mb-4">2</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Map Columns</h3>
+                        <p class="text-gray-600 text-center">Our smart system auto-maps, you just confirm the key fields.</p>
+                    </div>
+                    <div class="flex flex-col items-center p-6 bg-white rounded-xl shadow-md border border-gray-100">
+                        <div class="circular-logo bg-green-500 text-white mb-4">3</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Get Instant Dashboard</h3>
+                        <p class="text-gray-600 text-center">Voila! Your interactive dashboard is ready in seconds.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <section id="pricing-section" class="py-20 mt-20 bg-gray-50 rounded-xl shadow-inner px-4">
+                <div class="max-w-5xl mx-auto text-center">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                        Flexible Pricing for SalesDash
+                    </h2>
+                    <p class="text-lg text-gray-600 mb-12">
+                        Find the perfect plan to unlock insights from your sales data, for individuals and growing businesses.
+                    </p>
+
+                    <!-- Monthly/Annual Toggle -->
+                    <div class="inline-flex bg-gray-200 rounded-full p-1 mb-10">
+                        <button id="monthly-toggle" class="px-6 py-2 rounded-full text-sm font-semibold bg-blue-600 text-white shadow-md">Monthly</button>
+                        <button id="annual-toggle" class="px-6 py-2 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-300 transition duration-200">Annual</button>
+                    </div>
+
+                    <!-- Pricing Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Starter Plan Card -->
+                        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 flex flex-col pricing-card" data-plan="starter">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 text-xl font-bold mx-auto mb-4">
+                                <i class="fas fa-seedling"></i> <!-- Changed icon for Starter -->
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
+                            <p class="text-gray-600 mb-6">Ideal for individual users and small businesses getting started with data visualization.</p>
+                            <p class="text-5xl font-extrabold text-gray-900 mb-6">
+                                <span class="price-value" data-monthly="$19" data-annual="$199">$19</span><span class="price-period" data-monthly="/Mo" data-annual="/Yr">/Mo</span>
+                            </p>
+                            <ul class="text-left text-gray-700 space-y-3 flex-grow">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Up to 100MB data storage
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> 5 Dashboard Templates
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Unlimited Dashboard Views
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Standard Email Support
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> CSV/XLSX Import
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Basic KPIs & Charts
+                                </li>
+                            </ul>
+                            <button class="mt-8 bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out font-bold">
+                                Get Started
+                            </button>
+                        </div>
+
+                        <!-- Pro Plan Card (Most Popular) -->
+                        <div class="bg-blue-700 p-8 rounded-xl shadow-xl border-2 border-blue-500 flex flex-col text-white transform scale-105 pricing-card" data-plan="pro">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-400 text-blue-900 text-xl font-bold mx-auto mb-4">
+                                <i class="fas fa-chart-line"></i> <!-- Changed icon for Pro -->
+                            </div>
+                            <h3 class="text-2xl font-bold mb-2">Pro</h3>
+                            <p class="text-blue-200 mb-6">Perfect for growing teams needing deeper analytics and more data capacity.</p>
+                            <p class="text-5xl font-extrabold mb-6">
+                                <span class="price-value" data-monthly="$79" data-annual="$799">$79</span><span class="price-period" data-monthly="/Mo" data-annual="/Yr">/Mo</span>
+                            </p>
+                            <ul class="text-left text-blue-100 space-y-3 flex-grow">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> All Starter features
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> Up to 1GB data storage
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> Customizable Dashboards
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> Advanced Charting Options
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> Priority Email Support
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-300 mr-2"></i> PDF/Image Export
+                                </li>
+                            </ul>
+                            <button class="mt-8 bg-white text-blue-700 px-6 py-3 rounded-lg shadow-md hover:bg-gray-200 transition duration-300 ease-in-out font-bold">
+                                Get Started
+                            </button>
+                        </div>
+
+                        <!-- Enterprise Plan Card -->
+                        <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 flex flex-col pricing-card" data-plan="enterprise">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 text-purple-600 text-xl font-bold mx-auto mb-4">
+                                <i class="fas fa-building"></i> <!-- Icon for Enterprise -->
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Enterprise</h3>
+                            <p class="text-gray-600 mb-6">Comprehensive solution for large teams and advanced data analysis needs.</p>
+                            <p class="text-5xl font-extrabold text-gray-900 mb-6">
+                                <span class="price-value" data-monthly="$399" data-annual="$3999">$399</span><span class="price-period" data-monthly="/Mo" data-annual="/Yr">/Mo</span>
+                            </p>
+                            <ul class="text-left text-gray-700 space-y-3 flex-grow">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> All Pro features
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Unlimited Data Storage
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Team Collaboration Features
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Dedicated Account Manager
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> API Access (Future)
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check-circle text-green-500 mr-2"></i> Custom Integrations (Future)
+                                </li>
+                            </ul>
+                            <button class="mt-8 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition duration-300 ease-in-out font-bold">
+                                Get Started
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-10">
+                        - Limited time offer -
+                    </p>
+                </div>
+            </div>
+
+
+            <!-- Get in Touch / Contact Form Section -->
+            <div class="py-20 mt-20 bg-gray-900 text-white rounded-xl shadow-2xl px-4">
+                <div class="max-w-4xl mx-auto text-center">
+                    <p class="text-sm font-medium uppercase tracking-wider text-gray-400 mb-3">CONTACT</p>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+                        Get in Touch with Us
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-400 mb-10">
+                        Have questions or need assistance with your sales data? Let us know by filling out the form, and we'll be in touch!
+                    </p>
+
+                    <!-- Contact Info Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-md flex items-center space-x-4">
+                            <i class="fas fa-envelope text-purple-400 text-2xl"></i>
+                            <div class="text-left">
+                                <h3 class="text-lg font-semibold text-white">E-mail</h3>
+                                <p class="text-gray-400">info@salesdash.com</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg shadow-md flex items-center space-x-4">
+                            <i class="fas fa-phone-alt text-purple-400 text-2xl"></i>
+                            <div class="text-left">
+                                <h3 class="text-lg font-semibold text-white">Phone</h3>
+                                <p class="text-gray-400">+1 (800) 123-4567</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <form class="bg-gray-800 p-8 rounded-lg shadow-md text-left">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="first-name" class="block text-gray-300 text-sm font-medium mb-2">First Name</label>
+                                <input type="text" id="first-name" class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="John">
+                            </div>
+                            <div>
+                                <label for="last-name" class="block text-gray-300 text-sm font-medium mb-2">Last Name</label>
+                                <input type="text" id="last-name" class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Doe">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label for="email" class="block text-gray-300 text-sm font-medium mb-2">Email</label>
+                                <input type="email" id="email" class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="john.doe@example.com">
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-gray-300 text-sm font-medium mb-2">Phone</label>
+                                <input type="tel" id="phone" class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="+1 (XXX) XXX-XXXX">
+                            </div>
+                        </div>
+                        <div class="mb-6">
+                            <label for="message" class="block text-gray-300 text-sm font-medium mb-2">Message</label>
+                            <textarea id="message" rows="5" class="w-full p-3 rounded-md bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Hi, I am interested in..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-purple-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 font-bold">
+                            Submit Form
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="py-20 mt-20 px-4">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-12">
+                        Frequently Asked Questions
+                    </h2>
+
+                    <div class="space-y-4">
+                        <!-- FAQ Item 1 -->
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>What types of sales data files can I upload?</span>
+                                <i class="fas fa-plus faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>SalesDash currently supports CSV (.csv) and Excel (.xlsx) file formats. Simply drag and drop your file or use the "Browse Files" button on the home page.</p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 2 -->
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>Is my sales data secure and private?</span>
+                                <i class="fas fa-plus faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Yes, we prioritize the security and privacy of your data. All uploaded data is processed securely and is only accessible by you. We do not share or store your sensitive sales information permanently without explicit consent (e.g., if you opt for a plan with cloud storage).</p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 3 -->
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>Can I customize the dashboard's appearance?</span>
+                                <i class="fas fa-plus faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Absolutely! You can customize the dashboard's theme and colors via the "Settings" page. We offer several preset color options to match your preference.</p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 4 -->
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>What if my CSV columns don't match the expected fields?</span>
+                                <i class="fas fa-plus faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Our intelligent auto-mapping feature will attempt to identify your columns. If needed, you'll be guided through a simple mapping process where you can manually select which of your columns correspond to our required fields (e.g., "Total Sale," "Sold Unit"). You can re-map columns anytime from the Settings page.</p>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 5 -->
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <span>Can I download or share my generated dashboard?</span>
+                                <i class="fas fa-plus faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Yes, SalesDash allows you to download your dashboard as a PDF or individual image files. Depending on your plan, you may also have options to generate private shareable links to your dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-16 text-center">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Still have questions?</h3>
+                        <p class="text-lg text-gray-600 mb-6">
+                            If you cannot find an answer to your question in our FAQ, you can always contact us directly. We will answer you shortly!
+                        </p>
+                        <button class="bg-blue-600 text-white px-8 py-4 rounded-xl shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out font-bold" onclick="showPage('settings-page')">
+                            Contact Support
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Page Content (Hidden by default) -->
+        <section id="register-page" class="page-content hidden-page">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Register</h2>
+            <div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <form>
+                    <div class="mb-6">
+                        <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                        <div class="relative">
+                            <input type="text" id="username" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="username">
+                            <i class="fas fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="register-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                        <div class="relative">
+                            <input type="email" id="register-email" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="email">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <label for="register-password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="register-password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="password">
+                            <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-eye-slash absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"></i>
+                        </div>
+                    </div>
+                    <div class="mb-8">
+                        <label for="confirm-password" class="block text-gray-700 text-sm font-medium mb-2">Confirm</label>
+                        <div class="relative">
+                            <input type="password" id="confirm-password" class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="******">
+                            <i class="fas fa-key absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <i class="fas fa-eye-slash absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-bold">
+                        Create account
+                    </button>
+                </form>
+                <div class="bg-blue-50 border-l-4 border-blue-400 text-blue-700 p-4 mt-8 rounded-md text-left" role="alert">
+                    <div class="flex items-center">
+                        <div class="py-1"><i class="fas fa-info-circle text-xl mr-3"></i></div>
+                        <div>
+                            Free trial credits will be activated after you successfully sync a website.
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-8 text-center text-gray-600">
+                    Already have an account? <a href="#" class="text-blue-600 hover:underline font-semibold" data-target-page="login-page">Log In</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- No Data Message Modal/Overlay -->
+    <div class="overlay" id="no-data-overlay"></div>
+    <div class="no-data-message" id="no-data-modal">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">No Data Uploaded Yet!</h3>
+        <p class="text-gray-600 mb-6">Please upload your CSV/Excel file to see your personalized dashboard.</p>
+        <button id="upload-data-button" class="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+            Upload Data
+        </button>
+        <button id="close-no-data-modal" class="mt-4 text-gray-500 hover:text-gray-700 transition duration-300 ease-in-out">
+            Close
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const headerLogoLink = document.getElementById('header-logo-link');
+            const headerTryNowButton = document.getElementById('header-try-now-button');
+            const mobileTryNowButton = document.getElementById('mobile-try-now-button');
+            
+            const noDataModal = document.getElementById('no-data-modal');
+            const noDataOverlay = document.getElementById('no-data-overlay');
+            const uploadDataButton = document.getElementById('upload-data-button');
+            const closeNoDataModalButton = document.getElementById('close-no-data-modal');
+
+            const homePage = document.getElementById('home-page');
+            const dashboardPage = document.getElementById('dashboard-page');
+            const examplesPage = document.getElementById('examples-page');
+            const settingsPage = document.getElementById('settings-page');
+            const registerPage = document.getElementById('register-page'); 
+
+            const allPages = [homePage, dashboardPage, examplesPage, settingsPage, registerPage].filter(page => page !== null); // Filter out nulls
+
+
+            // --- Page Switching Logic ---
+            const showPage = (pageId) => {
+                allPages.forEach(page => {
+                    if (page.id === pageId) {
+                        page.classList.remove('hidden-page');
+                    } else {
+                        page.classList.add('hidden-page');
+                    }
+                });
+                // Close mobile menu if open
+                if (mobileMenu && !mobileMenu.classList.contains('hidden')) { // Added null check for mobileMenu
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuButton.setAttribute('aria-expanded', 'false');
+                }
+            };
+
+            // Event listeners for header navigation links
+            document.querySelectorAll('.header-nav-link').forEach(link => {
+                link.addEventListener('click', (event) => {
+                    const targetPageId = event.currentTarget.dataset.targetPage;
+                    event.preventDefault(); // Prevent default link behavior
+
+                    if (targetPageId === 'pricing-section') {
+                        const pricingSection = document.getElementById(targetPageId);
+                        if (pricingSection) {
+                            showPage('home-page'); // Ensure home page is visible first if navigating from other pages
+                            pricingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    } else if (targetPageId === 'login') {
+                        // For 'Login', we'll just show the register page for now, as login isn't built
+                        showPage('register-page'); // Or create a dedicated login page later
+                        console.log("Login clicked. Redirecting to Register page for now.");
+                    } else if (targetPageId === 'use-cases' || targetPageId === 'resources') {
+                        // For these, we'll assume they are on the home page and might scroll or show a specific section
+                        showPage('home-page'); // Ensure home page is visible
+                        console.log(`Navigating to ${targetPageId} section/page.`);
+                        // You could add scrollIntoView for specific sections here if they exist on home-page
+                    } else {
+                        // Default case for other primary nav links if they map to a full page
+                        showPage(targetPageId);
+                    }
+                });
+            });
+
+            // Header Logo link to Home Page
+            if (headerLogoLink) { // Added null check
+                headerLogoLink.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showPage('home-page');
+                });
+            }
+
+
+            // Header "Try Now" buttons click handler - now leads to Register Page
+            const handleTryNowClick = () => {
+                showPage('register-page'); // Navigate to the new register page
+            };
+            if (headerTryNowButton) headerTryNowButton.addEventListener('click', handleTryNowClick); // Added null check
+            if (mobileTryNowButton) mobileTryNowButton.addEventListener('click', handleTryNowClick); // Added null check
+
+
+            // --- Mobile Menu Toggle ---
+            if (mobileMenuButton) { // Added null check
+                mobileMenuButton.addEventListener('click', () => {
+                    const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true' || false;
+                    mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                    if (mobileMenu) mobileMenu.classList.toggle('hidden'); // Added null check
+                });
+            }
+
+
+            // --- Simulate "No Data Uploaded" State for Dashboard Link ---
+            let hasDataUploaded = false; // Set to true when a file is successfully processed
+
+            const showNoDataModal = (event) => {
+                if (event) event.preventDefault(); // Prevent default link behavior if applicable
+                if (noDataModal) noDataModal.classList.add('show'); // Added null check
+                if (noDataOverlay) noDataOverlay.classList.add('show'); // Added null check
+            };
+
+            const hideNoDataModal = () => {
+                if (noDataModal) noDataModal.classList.remove('show'); // Added null check
+                if (noDataOverlay) noDataOverlay.classList.remove('show'); // Added null check
+            };
+
+            // --- No Data Modal Button Handlers ---
+            if (uploadDataButton) uploadDataButton.addEventListener('click', () => { // Added null check
+                hideNoDataModal();
+                showPage('home-page'); // Go back to home page to initiate upload
+                console.log("Simulating scroll to upload section on Home page...");
+                // In a real app, you'd navigate or scroll:
+                // window.location.href = '#upload-section';
+            });
+
+            if (closeNoDataModalButton) closeNoDataModalButton.addEventListener('click', hideNoDataModal); // Added null check
+            if (noDataOverlay) noDataOverlay.addEventListener('click', hideNoDataModal); // Added null check
+
+            // --- Typing Animation Logic ---
+            const typedTextSpan = document.getElementById('typed-text');
+            const phrases = ["Actionable Sales Insights", "Key Performance Indicators", "Revenue Trends", "Stock Levels"];
+            let phraseIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            let typingSpeed = 100; // milliseconds per character
+            let deletingSpeed = 50; // milliseconds per character
+            let pauseBeforeDelete = 1500; // milliseconds
+            let pauseBeforeType = 500; // milliseconds
+
+            function typeWriter() {
+                if (!typedTextSpan) return; // Exit if element is null
+                const currentPhrase = phrases[phraseIndex];
+                if (isDeleting) {
+                    typedTextSpan.textContent = currentPhrase.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    typedTextSpan.textContent = currentPhrase.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let currentSpeed = isDeleting ? deletingSpeed : typingSpeed;
+
+                if (!isDeleting && charIndex === currentPhrase.length) {
+                    currentSpeed = pauseBeforeDelete;
+                    isDeleting = true;
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                    currentSpeed = pauseBeforeType;
+                }
+
+                setTimeout(typeWriter, currentSpeed);
+            }
+
+            // Start the typing animation when the page loads
+            if (typedTextSpan) {
+                typeWriter();
+            }
+
+            // --- Pricing Toggle Logic ---
+            const monthlyToggleBtn = document.getElementById('monthly-toggle');
+            const annualToggleBtn = document.getElementById('annual-toggle');
+            const pricingCards = document.querySelectorAll('.pricing-card');
+
+            const updatePricingDisplay = (isAnnual) => {
+                // Update toggle button styles
+                if (monthlyToggleBtn && annualToggleBtn) { // Added null checks
+                    if (isAnnual) {
+                        annualToggleBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                        annualToggleBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                        monthlyToggleBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                        monthlyToggleBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    } else {
+                        monthlyToggleBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                        monthlyToggleBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                        annualToggleBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                        annualToggleBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    }
+                }
+
+
+                // Update prices and periods for each card
+                pricingCards.forEach(card => {
+                    const priceValueSpan = card.querySelector('.price-value');
+                    const pricePeriodSpan = card.querySelector('.price-period');
+
+                    if (priceValueSpan && pricePeriodSpan) {
+                        if (isAnnual) {
+                            priceValueSpan.textContent = priceValueSpan.dataset.annual;
+                            pricePeriodSpan.textContent = pricePeriodSpan.dataset.annual;
+                        } else {
+                            priceValueSpan.textContent = priceValueSpan.dataset.monthly;
+                            pricePeriodSpan.textContent = pricePeriodSpan.dataset.monthly;
+                        }
+                    }
+                });
+            };
+
+            // Event listeners for the toggle buttons
+            if (monthlyToggleBtn) monthlyToggleBtn.addEventListener('click', () => updatePricingDisplay(false)); // Added null check
+            if (annualToggleBtn) annualToggleBtn.addEventListener('click', () => updatePricingDisplay(true)); // Added null check
+
+            // Initial pricing display (default to monthly)
+            if (monthlyToggleBtn || annualToggleBtn) { // Only call if buttons exist
+                updatePricingDisplay(false);
+            }
+
+
+            // --- FAQ Accordion Logic ---
+            document.querySelectorAll('.faq-question').forEach(question => {
+                question.addEventListener('click', () => {
+                    const answer = question.nextElementSibling;
+                    const icon = question.querySelector('.faq-icon');
+
+                    // Close other open FAQ items
+                    document.querySelectorAll('.faq-question.active').forEach(openQuestion => {
+                        if (openQuestion !== question) {
+                            openQuestion.classList.remove('active');
+                            openQuestion.nextElementSibling.classList.remove('show');
+                        }
+                    });
+
+                    // Toggle visibility of the current answer
+                    if (answer) answer.classList.toggle('show'); // Added null check
+                    // Toggle active class on the current question for icon rotation/styling
+                    question.classList.toggle('active');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
